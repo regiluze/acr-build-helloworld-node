@@ -1,0 +1,18 @@
+version: v1.1.0
+steps:
+  - id: build-web
+    build: -t /hello-world: .
+    when: [-]
+  - id: build-tests
+    build: -t /hello-world-tests ./funcTests
+    when: [-]
+  - id: push
+    push: [/helloworld:]
+    when: [build-web, build-tests]
+  - id: hello-world-web
+    cmd: /helloworld:
+  - id: funcTests
+    cmd: /helloworld:
+    env: [host=helloworld:80]
+  - cmd: /functions/helm package --app-version  -d ./helm ./helm/helloworld/
+  - cmd: /functions/helm upgrade helloworld ./helm/helloworld/ --reuse-values --set helloworld.image=/helloworld:
